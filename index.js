@@ -6,6 +6,8 @@ const app = express()
 //Configurating express
 app.use(express.json())
 
+app.use(express.static('build'))
+
 //Configurating cors
 app.use(cors())
 
