@@ -1,8 +1,18 @@
 const express = require('express')
+const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
-//To handle the request body with POST
+//Configurating express
 app.use(express.json())
+
+//Configurating cors
+app.use(cors())
+
+//Configurating morgan with created token
+morgan.token('json', function (req, res) { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :json'))
+
 
 let persons = [
     { 
@@ -48,6 +58,7 @@ app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id)
     const person = persons.find(p => p.id === id)
     
+    //Check if spesific id used in contacts
     if (person) {
       res.json(person)
     } else {
@@ -71,10 +82,20 @@ const generateId = () => {
 app.post('/api/persons', (req, res) => {
     const personBody = req.body
     console.log(personBody)
+    let nameAlreadyUsed = persons.map(p => p.name).includes(personBody.name)
+    console.log(nameAlreadyUsed)
   
+    //Check if name or number is missing
     if (!personBody.name || !personBody.number) {
       return res.status(400).json({ 
-        error: 'name or number missing' 
+        error: 'Name or number is missing' 
+      })
+    }
+    
+    //Check if name already used in contacts
+    if (nameAlreadyUsed) {
+      return res.status(400).json({
+        error: 'Name must be unique'
       })
     }
 
@@ -89,7 +110,7 @@ app.post('/api/persons', (req, res) => {
     res.json(person)
   })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
