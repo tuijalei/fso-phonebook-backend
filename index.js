@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 //Getting all contacts
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
-    response.json(persons)
+    res.json(persons)
   })
 })
 
@@ -36,8 +36,8 @@ app.get('/info', (req, res) => {
 
 //Getting a spesific contact from server
 app.get('/api/persons/:id', (req, res) => {
-  Person.findById(request.params.id).then(person => {
-    response.json(person)
+  Person.findById(req.params.id).then(person => {
+    res.json(person)
   })
   })
 
