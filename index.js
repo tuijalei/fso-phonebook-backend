@@ -4,7 +4,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
-const { restart } = require('nodemon')
 
 //Configurating express
 app.use(express.json())
