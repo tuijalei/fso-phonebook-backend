@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
+const { restart } = require('nodemon')
 
 //Configurating express
 app.use(express.json())
@@ -34,26 +35,36 @@ app.get('/info', (req, res) => {
   res.send('Phonebook has info for ' + persons.length + ' people <br><br>' + Date().toLocaleString())
 })
 
-//Getting a spesific contact from server
+//Getting a spesific contact from database
 app.get('/api/persons/:id', (req, res) => {
   Person.findById(req.params.id).then(person => {
-    res.json(person)
+    if (person) {
+      res.json(person)
+    } else {
+      res.status(404).end()
+    }
   })
+  .catch(error => {
+    console.log(error)
+    res.status(400).send({ error: 'malformatted id' })
   })
+})
 
 //Deleting a contact from server
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
+app.delete('/api/persons/:id', (req, res, next) => {
+  Person.findByIdAndRemove(req.params.id)
+  .then(result => {
     res.status(204).end()
-  })  
+  })
+  .catch(error => next(error))
+})  
 
-//Adding a new contact to server
+//Adding a new contact to database
 app.post('/api/persons', (req, res) => {
     const personBody = req.body
   
     //Check if name or number is missing
-    if (personBody.content === undefined) {
+    if (personBody.name === undefined || personBody.number === undefined) {
       return res.status(400).json({ error: 'Name or number is missing' })}
 
     //Create a new contact
@@ -62,6 +73,7 @@ app.post('/api/persons', (req, res) => {
       number: personBody.number
     })
   
+    //Sending the contact to database
     person.save().then(savedPerson => {
       res.json(savedPerson)
     })
