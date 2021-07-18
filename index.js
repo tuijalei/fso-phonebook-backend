@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
@@ -24,7 +25,7 @@ app.post('/api/persons', (req, res, next) => {
   //Check if name or number is missing
   if (!personBody.name) {
     return res.status(400).json({ error: 'Name  is missing' })}
-    
+
   if (!personBody.number) {
     return res.status(400).json({ error: 'Number  is missing' })}
 
@@ -38,24 +39,24 @@ app.post('/api/persons', (req, res, next) => {
   person.save().then(savedPerson => {
     res.json(savedPerson.toJSON())
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //Updating an old contact to database
-app.put("/api/persons/:id", (req, res, next) => {
-  const body = req.body;
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
 
   const person = {
     name: body.name,
     number: body.number,
-  };
+  }
 
   Person.findByIdAndUpdate(req.params.id, person, { new: true })
     .then((updatedPerson) => {
-      res.json(updatedPerson);
+      res.json(updatedPerson)
     })
-    .catch((error) => next(error));
-});
+    .catch((error) => next(error))
+})
 
 //Getting frontpage
 app.get('/', (req, res) => {
@@ -67,7 +68,7 @@ app.get('/api/persons', (req, res, next) => {
   Person.find({}).then(persons => {
     res.json(persons)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //Info page with number of contacts and current time
@@ -87,21 +88,21 @@ app.get('/api/persons/:id', (req, res, next) => {
       res.status(404).end()
     }
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //Deleting a contact from database
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-  .then(result => {
-    res.status(204).end()
-  })
-  .catch(error => next(error))
-})  
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
+})
 
 //Configurating handler for unknown addresses
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'unknown endpoint'})
+  res.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
@@ -109,15 +110,15 @@ app.use(unknownEndpoint)
 //Configurating handler for casterrors
 const errorHandler = (error, req, res, next) => {
   console.log(error.message)
-  
+
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'TypeError') {
-    return res.status(400).send({ error: 'value not expected type'})
+    return res.status(400).send({ error: 'value not expected type' })
   } else if (error.name === 'ReferenceError'){
     return res.status(400).send({ error: 'variable doesnt exist' })
   } else if (error.name === 'ValidationError'){
-    return res.status(400).json({ error: error.message})
+    return res.status(400).json({ error: error.message })
   }
 
   next(error)
@@ -127,5 +128,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
